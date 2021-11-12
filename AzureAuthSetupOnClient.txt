@@ -1,0 +1,40 @@
+import { AuthOptions, CacheOptions } from 'msal/lib-commonjs/Configuration';
+import { AuthenticationParameters, Configuration } from 'msal';
+import {
+  IMsalAuthProviderConfig,
+  LoginType,
+  MsalAuthProvider,
+} from 'react-aad-msal';
+
+const auth: AuthOptions = {
+  authority: process.env.REACT_APP_AZURE_AUTHORITY
+    ? process.env.REACT_APP_AZURE_AUTHORITY
+    : '',
+  clientId: process.env.REACT_APP_AZURE_CLIENT_ID
+    ? process.env.REACT_APP_AZURE_CLIENT_ID
+    : '',
+  postLogoutRedirectUri: window.location.origin,
+  redirectUri: window.location.origin,
+  validateAuthority: true,
+  navigateToLoginRequestUrl: true,
+};
+const cache: CacheOptions = {
+  cacheLocation: 'localStorage',
+  storeAuthStateInCookie: false,
+};
+
+export const authenticationParameters: AuthenticationParameters = {
+  scopes: [
+    process.env.REACT_APP_AZURE_SCOPE ? process.env.REACT_APP_AZURE_SCOPE : '',
+  ],
+};
+const options: IMsalAuthProviderConfig = {
+  loginType: LoginType.Popup,
+};
+
+const config: Configuration = { auth, cache };
+export const authProvider: MsalAuthProvider = new MsalAuthProvider(
+  config,
+  authenticationParameters,
+  options
+);

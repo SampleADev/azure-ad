@@ -1,0 +1,35 @@
+public bool Validate(string token, out JwtSecurityToken jwtSecurityToken) {
+  string stsDiscoveryEndpoint = "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration";
+
+  IConfigurationSection azureADSection = _configuration.GetSection("AzureAD");
+
+  var configManager = new ConfigurationManager < OpenIdConnectConfiguration > (stsDiscoveryEndpoint,
+    new OpenIdConnectConfigurationRetriever());
+
+  OpenIdConnectConfiguration config = configManager.GetConfigurationAsync().Result;
+
+  TokenValidationParameters validationParameters = new TokenValidationParameters {
+    ValidateAudience = false,
+      ValidateIssuer = true,
+      IssuerSigningKeys = config.SigningKeys,
+      ValidateLifetime = true,
+      ValidIssuer = $ "{azureADSection["
+    Instance "]}/{azureADSection["
+    TenantId "]}/v2.0",
+      ValidateIssuerSigningKey = false
+  };
+
+  JwtSecurityTokenHandler tokendHandler = new JwtSecurityTokenHandler();
+
+  try {
+    tokendHandler.ValidateToken(token, validationParameters, out
+      var jwt);
+
+    jwtSecurityToken = jwt as JwtSecurityToken;
+    return jwtSecurityToken != null;
+  } catch (Exception) {
+    jwtSecurityToken = null;
+
+    return false;
+  }
+}
